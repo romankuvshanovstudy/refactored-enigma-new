@@ -83,14 +83,15 @@ def update(id):
 @app.route('/data/<int:id>/delete', methods=['GET', 'POST'])
 def delete(id):
     employee = EmployeeModel.query.filter_by(employee_id=id).first()
-    if request.method == 'POST':
-        if employee:
-            db.session.delete(employee)
-            db.session.commit()
-            return redirect('/data')
-        abort(404)
+    if not employee:
+        abort(404) 
 
-    return render_template('delete.html')
+    if request.method == 'POST':
+        db.session.delete(employee)
+        db.session.commit()
+        return redirect('/data')
+
+    return render_template('delete.html', employee=employee)
 
 
 app.run(host='localhost', port=5000)
