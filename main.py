@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, redirect
-from models import db, EmployeeModel
+from flask import Flask, render_template, request, redirect, abort
+from models import db, EmployeeModel, DepartmentModel, ProjectModel, SkillModel
 
 app = Flask(__name__)
 
@@ -18,29 +18,45 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 db.init_app(app)
 
-with app.app_context():
-    db.create_all()
-
 
 @app.route('/')
-def index():
-    return redirect('/data', 302)
+def home():
+    return render_template('home.html')
 
 
 @app.route('/data/create', methods=['GET', 'POST'])
 def create():
     if request.method == 'GET':
-        return render_template('createpage.html')
+        departments = DepartmentModel.query.all()
+        projects = ProjectModel.query.all()
+        skills = SkillModel.query.all()
+        return render_template('createpage.html',
+                               departments=departments,
+                               projects=projects,
+                               skills=skills)
 
     if request.method == 'POST':
         employee_id = request.form['employee_id']
         name = request.form['name']
         age = request.form['age']
         position = request.form['position']
+        salary = request.form['salary']
+        department_id = request.form['department_id']
+        project_id = request.form['project_id']
+        skill_ids = request.form.getlist('skills')
+
         employee = EmployeeModel(employee_id=employee_id,
                                  name=name,
                                  age=age,
-                                 position=position)
+                                 position=position,
+                                 salary=salary,
+                                 department_id=department_id,
+                                 project_id=project_id)
+
+        # Добавляем выбранные навыки
+        skills = SkillModel.query.filter(SkillModel.id.in_(skill_ids)).all()
+        employee.skills.extend(skills)
+
         db.session.add(employee)
         db.session.commit()
         return redirect('/data')
@@ -48,7 +64,7 @@ def create():
 
 @app.route('/data')
 def RetrieveList():
-    employees = EmployeeModel.query.all()
+    employees = EmployeeModel.query.order_by(EmployeeModel.employee_id).all()
     return render_template('datalist.html', employees=employees)
 
 
@@ -57,7 +73,7 @@ def RetrieveEmployee(id):
     employee = EmployeeModel.query.filter_by(employee_id=id).first()
     if employee:
         return render_template('data.html', employee=employee)
-    return f"Employee with id ={id} Doenst exist"
+    return f"Employee with id ={id} Doesn't exist"
 
 
 @app.route('/data/<int:id>/update', methods=['GET', 'POST'])
@@ -67,33 +83,53 @@ def update(id):
         if employee:
             db.session.delete(employee)
             db.session.commit()
+
             name = request.form['name']
             age = request.form['age']
             position = request.form['position']
+            salary = request.form['salary']
+            department_id = request.form['department_id']
+            project_id = request.form['project_id']
+            skill_ids = request.form.getlist('skills')
+
             employee = EmployeeModel(employee_id=id,
                                      name=name,
                                      age=age,
-                                     position=position)
+                                     position=position,
+                                     salary=salary,
+                                     department_id=department_id,
+                                     project_id=project_id)
+
+            skills = SkillModel.query.filter(
+                SkillModel.id.in_(skill_ids)).all()
+            employee.skills.extend(skills)
+
             db.session.add(employee)
             db.session.commit()
             return redirect(f'/data/{id}')
-        return f"Employee with id = {id} Does nit exist"
+        return f"Employee with id = {id} Does not exist"
 
-    return render_template('update.html', employee=employee)
+    departments = DepartmentModel.query.all()
+    projects = ProjectModel.query.all()
+    skills = SkillModel.query.all()
+    return render_template('update.html',
+                           employee=employee,
+                           departments=departments,
+                           projects=projects,
+                           skills=skills)
 
 
 @app.route('/data/<int:id>/delete', methods=['GET', 'POST'])
 def delete(id):
     employee = EmployeeModel.query.filter_by(employee_id=id).first()
-    if not employee:
-        abort(404)
-
     if request.method == 'POST':
-        db.session.delete(employee)
-        db.session.commit()
-        return redirect('/data')
+        if employee:
+            db.session.delete(employee)
+            db.session.commit()
+            return redirect('/data')
+        abort(404)
+    return render_template('delete.html')
 
-    return render_template('delete.html', employee=employee)
 
-
-app.run(host='localhost', port=5000)
+if __name__ == '__main__':
+    app.run(host='localhost', port=5000)

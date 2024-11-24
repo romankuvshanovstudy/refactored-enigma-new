@@ -2,3 +2,4 @@ flask
 SQLAlchemy
 pymysql
 Flask_SQLAlchemy
+faker
