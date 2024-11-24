@@ -8,6 +8,8 @@ app.config[
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MYSQL_SSL_DISABLED'] = True
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 1,
+    'max_overflow': 0,
     'connect_args': {
         'ssl': {
             'ssl_disabled': True
@@ -84,7 +86,7 @@ def update(id):
 def delete(id):
     employee = EmployeeModel.query.filter_by(employee_id=id).first()
     if not employee:
-        abort(404) 
+        abort(404)
 
     if request.method == 'POST':
         db.session.delete(employee)
