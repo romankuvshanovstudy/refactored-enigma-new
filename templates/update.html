@@ -1,43 +1,92 @@
-<h2>Update Employee</h2>
-<form action='' method="POST">
-    <p>Name <input type="text" name="name" value="{{employee.name}}" required /></p>
-    <p>Age <input type="integer" name="age" value="{{employee.age}}" required /></p>
-    <p>Position <input type="text" name="position" value="{{employee.position}}" required /></p>
-    <p>Salary <input type="number" step="0.01" name="salary" value="{{employee.salary}}" required /></p>
+<!DOCTYPE html>
+<html lang="en">
 
-    <p>Department
-        <select name="department_id" required>
-            <option value="">Select Department</option>
-            {% for dept in departments %}
-            <option value="{{ dept.id }}" {% if dept.id==employee.department_id %}selected{% endif %}>
-                {{ dept.name }}
-            </option>
-            {% endfor %}
-        </select>
-    </p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Update Employee</title>
+</head>
 
-    <p>Project
-        <select name="project_id">
-            <option value="">None</option>
-            {% for proj in projects %}
-            <option value="{{ proj.id }}" {% if proj.id==employee.project_id %}selected{% endif %}>
-                {{ proj.name }}
-            </option>
-            {% endfor %}
-        </select>
-    </p>
-
-    <p>Skills</p>
-    <div class="skills-container">
-        {% for skill in skills %}
-        <label>
-            <input type="checkbox" name="skills" value="{{ skill.id }}" {% if skill in employee.skills %}checked{% endif
-                %}>
-            {{ skill.name }} ({{ skill.category }})
-        </label><br>
-        {% endfor %}
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Update Employee</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action='' method="POST">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{employee.name}}"
+                                    required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="age" name="age" value="{{employee.age}}"
+                                    required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="position" class="form-label">Position</label>
+                                <input type="text" class="form-control" id="position" name="position"
+                                    value="{{employee.position}}" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="salary" class="form-label">Salary</label>
+                                <input type="number" class="form-control" id="salary" name="salary" step="0.01"
+                                    value="{{employee.salary}}" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="department" class="form-label">Department</label>
+                                <select name="department_id" id="department" class="form-select" required>
+                                    <option value="">Select Department</option>
+                                    {% for dept in departments %}
+                                    <option value="{{ dept.id }}" {% if dept.id==employee.department_id %}selected{%
+                                        endif %}>
+                                        {{ dept.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="project" class="form-label">Project</label>
+                                <select name="project_id" id="project" class="form-select">
+                                    <option value="">None</option>
+                                    {% for proj in projects %}
+                                    <option value="{{ proj.id }}" {% if proj.id==employee.project_id %}selected{% endif
+                                        %}>
+                                        {{ proj.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Skills</label>
+                                <div class="skills-container">
+                                    {% for skill in skills %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="skills"
+                                            id="skill_{{ skill.id }}" value="{{ skill.id }}" {% if skill in
+                                            employee.skills %}checked{% endif %}>
+                                        <label class="form-check-label" for="skill_{{ skill.id }}">
+                                            {{ skill.name }} ({{ skill.category }})
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <input type="submit" value="Update" class="btn btn-primary" />
+                                <a href="/data" class="btn btn-secondary">Back to List</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</body>
 
-    <p><input type="submit" value="Update" /></p>
-    <p><a href="/data">Back to List</a></p>
-</form>
+</html>
